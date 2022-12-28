@@ -1,33 +1,13 @@
 import yfinance as yf
-from finviz.screener import Screener
+
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
-from IPython.display import Image, display
-from IPython.core.display import HTML
-from finvizfinance.quote import finvizfinance
+
 from vcp_helper import stock_filter
 from vcp_helper import test_vcp
-
-
-def show_image(ticker_s):
-    stock = finvizfinance(ticker_s)
-    # print(stock.ticker_charts())
-    # display(Image(url=stock.ticker_charts()))
-    return stock.ticker_charts()
-
-
-def scanning_wrapper(the_ticker_string):
-    ticker = yf.Ticker(the_ticker_string)
-    ticker_history = ticker.history(period='max')
-    data = stock_filter(ticker_history)
-
-    if data['Fulfillment'].tail(1).iloc[0]:
-        url = show_image(the_ticker_string)
-        summarise = test_vcp(data)
-        return {'stock': the_ticker_string, 'chart': url, 'analysis': summarise}
-    else:
-        return {'stock': the_ticker_string, 'chart': None, 'analysis': None}
+from vcp_helper import scanning_wrapper
+from finviz.screener import Screener
 
 
 def get_ticker_list():
@@ -42,10 +22,11 @@ def get_ticker_list():
 # test one stock
 ###
 # SBLK INST
-# ticker = yf.Ticker("ARRY")
+# ticker = yf.Ticker('3690.HK')
 # ticker_history = ticker.history(period='max')
 # data = stock_filter(ticker_history)
 # print("filtered data ................", data, " test_vcp: ...............", test_vcp(data))
+
 
 ###
 # test all stocks
@@ -54,6 +35,7 @@ ticker_list = get_ticker_list()
 for ticker_string in tqdm(ticker_list):
     res = scanning_wrapper(ticker_string)
     if res['analysis'] is not None:
-        print("\nVCP Matched: ", ticker_string, " res: ", res)
+        # print("\nVCP Matched: ", ticker_string, " res: ", res)
+        print("\nVCP Matched: ", ticker_string, " URL: ", 'https://finviz.com/quote.ashx?t=' + ticker_string + '&p=d')
     else:
         print("\nVCP Not Matched: ", ticker_string)

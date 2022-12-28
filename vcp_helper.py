@@ -1,8 +1,19 @@
+import yfinance as yf
 import numpy as np
 from scipy.stats import linregress
 from futu import *
 from tqdm import tqdm
 import concurrent.futures
+from IPython.display import Image, display
+from IPython.core.display import HTML
+from finvizfinance.quote import finvizfinance
+
+
+def show_image(ticker_s):
+    stock = finvizfinance(ticker_s)
+    # print(stock.ticker_charts())
+    # display(Image(url=stock.ticker_charts()))
+    return stock.ticker_charts()
 
 
 def slope_reg(arr):
@@ -10,6 +21,20 @@ def slope_reg(arr):
     x = np.arange(len(y))
     slope, intercept, r_value, p_value, std_err = linregress(x, y)
     return slope
+
+
+def scanning_wrapper(the_ticker_string):
+    ticker = yf.Ticker(the_ticker_string)
+    ticker_history = ticker.history(period='max')
+    data = stock_filter(ticker_history)
+
+    if data['Fulfillment'].tail(1).iloc[0]:
+        # url = show_image(the_ticker_string)
+        summarise = test_vcp(data)
+        # return {'stock': the_ticker_string, 'chart': url, 'analysis': summarise}
+        return {'stock': the_ticker_string, 'chart': None, 'analysis': summarise}
+    else:
+        return {'stock': the_ticker_string, 'chart': None, 'analysis': None}
 
 
 def stock_filter(df):
