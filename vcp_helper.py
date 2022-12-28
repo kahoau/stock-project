@@ -28,7 +28,9 @@ def scanning_wrapper(the_ticker_string):
     ticker_history = ticker.history(period='max')
     data = stock_filter(ticker_history)
 
-    if data['Fulfillment'].tail(1).iloc[0]:
+    if data.empty:
+        return {'stock': the_ticker_string, 'chart': None, 'analysis': None}
+    elif data['Fulfillment'].tail(1).iloc[0]:
         # url = show_image(the_ticker_string)
         summarise = test_vcp(data)
         # return {'stock': the_ticker_string, 'chart': url, 'analysis': summarise}
@@ -102,6 +104,9 @@ def stock_filter(df):
 
 def test_vcp(df_i):
     df = pd.DataFrame()
+    if df_i.empty:
+        return df
+
     df['Fulfillment'] = df_i['Fulfillment']
     df['Future_Close_1'] = df_i['Close'].shift(periods=-1)
     df['Future_Close_3'] = df_i['Close'].shift(periods=-3)
